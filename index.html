@@ -24,7 +24,7 @@
             });
             document.getElementById("form").addEventListener("submit", e => {
                 e.preventDefault()
-                socket.emit("message", username + input.value);
+                socket.emit("message", username + ": " + input.value);
                 input.value = "";
             })
         </script>
