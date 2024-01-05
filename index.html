@@ -17,7 +17,7 @@
             const socket = io();
             const username = prompt("what is your name?")
             var input = document.getElementById("input")
-            socket.on((msg) => {
+            socket.on("message" ,(msg) => {
                 var item = document.createElement("li")
                 document.getElementById("messages").appendChild(item);
                 item.innerText = msg;
