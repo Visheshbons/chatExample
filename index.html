@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+    <title>snail chat2</title>
+    </head>
+    <body>
+        <form id="form">
+            <input id="input" placeholder="Type your message here">
+            <button>submit</button>
+        </form>
+        <li id="messages"></li>
+        </body>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            const username = prompt("what is your name?")
+            var input = document.getElementById("input")
+            socket.on((msg) => {
+                var item = document.createElement("li")
+                document.getElementById("messages").appendChild(item);
+                item.innerText = msg;
+            });
+            document.getElementById("form").addEventListener("submit", e => {
+                e.preventDefault()
+                socket.emit("message", username + input.value);
+                input.value = "";
+            })
+        </script>
+    </body>
+    </html>
