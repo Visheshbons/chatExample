@@ -1,27 +1,51 @@
 const express = require("express");
 const app = express();
-const http = require("http")
-const server = http.createServer(app);
-const { Server } = require("socket.io")
-const io = new Server(server)
+const fs = require("fs");
+
+app.use(express.json());
+
+let messages = [];
+
+// Initialise messages file
+if (fs.existsSync("messages.json")) {
+  try {
+    messages = JSON.parse(fs.readFileSync("messages.json"));
+  } catch (error) {
+    console.error("Error parsing messages.json:", error);
+  }
+} else {
+  fs.writeFileSync("messages.json", JSON.stringify(messages));
+}
+
+function newMessage(message) {
+  console.log("New message: " + message);
+  messages.push(message);
+  fs.writeFileSync("messages.json", JSON.stringify(messages));
+}
+
+function loadMessages() {
+  try {
+    messages = JSON.parse(fs.readFileSync("messages.json"));
+  } catch (error) {
+    console.error("Error parsing messages.json:", error);
+  }
+  return messages;
+}
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + '/index.html')
+  res.sendFile(__dirname + "/index.html");
 });
 
-server.listen(3000, () => {
-    console.log('listening on port *:3000')
+app.get("/messages", (req, res) => {
+  res.json(loadMessages());
 });
 
-io.on('conection', (socket) => {
-    console.log("a user conected")
-    socket.on('disconnect', () => {
-        console.log("user disconnected")
-    })
-})
+app.post("/message", (req, res) => {
+  const message = req.body.message;
+  newMessage(message);
+  res.sendStatus(200);
+});
 
-io.on('connection', (socket) => {
-socket.on("message", (msg) => {
-    io.emit("message", msg)
-})
+app.listen(3000, () => {
+  console.log("listening on port *:3000");
 });

@@ -1,34 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>snail chat2</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Snail Chat2</title>
     </head>
     <body>
         <form id="form">
-            <input id="input" placeholder="Type your message here">
-            <button>submit</button>
+            <input id="input" placeholder="Type your message here" />
+            <input type="submit" value="Submit" />
         </form>
-        <li id="messages"></li>
-        </body>
-        <script src="/socket.io/socket.io.js"></script>
+        <ul id="messages"></ul>
+
         <script>
-            const socket = io();
-            const username = prompt("what is your name?")
-            var input = document.getElementById("input")
-            socket.on("message" ,(msg) => {
-                var item = document.createElement("li")
-                document.getElementById("messages").appendChild(item);
-                item.innerText = msg;
-            });
-            document.getElementById("form").addEventListener("submit", e => {
-                e.preventDefault()
-                if (input.value != "") { 
-                socket.emit("message", username + ": " + input.value);
-                input.value = "";
+            let messages = [];
+            const username = prompt("What is your name?");
+            const messagesList = document.getElementById("messages");
+            const input = document.getElementById("input");
+            const form = document.getElementById("form");
+
+            function renderMessages(msgs) {
+                messagesList.innerHTML = "";
+                msgs.forEach((message) => {
+                    const item = document.createElement("li");
+                    item.innerText = message;
+                    messagesList.appendChild(item);
+                });
+            }
+
+            function fetchMessages() {
+                fetch("/messages")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        messages = data;
+                        renderMessages(messages);
+                    });
+            }
+
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                if (input.value.trim() !== "") {
+                    const msg = username + ": " + input.value;
+                    fetch("/message", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: msg }),
+                    }).then(() => {
+                        input.value = "";
+                        fetchMessages();
+                    });
                 }
-            })
+            });
+
+            // Initial fetch
+            fetchMessages();
+
+            // Poll for new messages every 2 seconds
+            setInterval(fetchMessages, 2000);
         </script>
     </body>
-    </html>
+</html>
