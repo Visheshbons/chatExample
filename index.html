@@ -27,6 +27,7 @@
             // Render message on page
             function renderMessages(msgs) {
                 messagesList.innerHTML = "";
+                msgs.reverse();
                 msgs.forEach((message) => {
                     const item = document.createElement("li");
                     item.innerText = message;
