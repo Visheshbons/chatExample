@@ -13,12 +13,18 @@
         <ul id="messages"></ul>
 
         <script>
+            // Initialize messages array
             let messages = [];
+
+            // Get username
             const username = prompt("What is your name?");
+
+            // Initialize messages list and form inputs
             const messagesList = document.getElementById("messages");
             const input = document.getElementById("input");
             const form = document.getElementById("form");
 
+            // Render message on page
             function renderMessages(msgs) {
                 messagesList.innerHTML = "";
                 msgs.forEach((message) => {
@@ -28,6 +34,7 @@
                 });
             }
 
+            // Update messages to remote
             function fetchMessages() {
                 fetch("/messages")
                     .then((response) => response.json())
@@ -37,26 +44,44 @@
                     });
             }
 
+            // Send message to remote on submit
             form.addEventListener("submit", (e) => {
+                // This prevents the default form submission behavior
                 e.preventDefault();
-                if (input.value.trim() !== "") {
+
+                // Validate input
+                if (
+                    input.value.trim() !== "" &&
+                    username !== null &&
+                    username !== ""
+                ) {
+                    // Create message
                     const msg = username + ": " + input.value;
+
+                    // Send message to remote
                     fetch("/message", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ message: msg }),
                     }).then(() => {
+                        // Clear input field
                         input.value = "";
+
+                        // Update messages onscreen
                         fetchMessages();
                     });
+                } else if (username === null || username === "") {
+                    username = prompt("Please enter a username");
+                } else {
+                    alert("Please enter a message");
                 }
             });
 
             // Initial fetch
             fetchMessages();
 
-            // Poll for new messages every 2 seconds
-            setInterval(fetchMessages, 2000);
+            // Poll for new messages every second
+            setInterval(fetchMessages, 1000);
         </script>
     </body>
 </html>
